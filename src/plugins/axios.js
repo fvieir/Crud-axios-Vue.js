@@ -10,7 +10,16 @@ Vue.use({
             // eslint-disable-next-line no-console
             console.log(config)
             return config
-        })
+        }, error => Promise.reject(error))
+
+        Vue.prototype.$http.interceptors.response.use(res => {
+
+            const array = []
+            for(let chave in res.data) {
+                array.push({ id: chave, ...res.data[chave]})
+            }
+            return array
+        }, error => Promise.reject(error))
     }
 })
 

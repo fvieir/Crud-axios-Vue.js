@@ -32,7 +32,7 @@
 			<hr>
 			<transition name="fade" mode="out-in">
 				<b-list-group>
-					<b-list-group-item v-for="(usuario, id) in usuarios" :key="id">
+					<b-list-group-item v-for="(usuario, i) in usuarios" :key="i">
 						<strong>Nome :{{usuario.nome}} </strong>
 						<strong><b>email : </b> {{usuario.email}} </strong>
 						<strong><b>ID : </b> {{usuario.id}} </strong>
@@ -62,13 +62,17 @@ export default {
 			}).then(res => {
 				this.clear()
 				this.getDate()
+				// eslint-disable-next-line no-console
+				console.log(res)
 			}, error => {
 				alert(error)
 			})
 		},
 		getDate () {
 			this.$http.get('usuario.json').then(res => {
-				this.usuarios = res.data
+				this.usuarios = res
+				// eslint-disable-next-line no-console
+				console.log(this.usuarios)
 			}, error => {
 				alert(error)
 			})
