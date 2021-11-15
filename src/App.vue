@@ -1,6 +1,12 @@
 <template>
 	<div id="app" class="container">
 		<h1>HTTP com Axios</h1>
+			<b-alert show v-if="remove" 
+				variant="success"
+				> Excluido com sucesso </b-alert>
+
+			<b-alert show v-if="infoGetData"
+				variant="danger"> Não há dados! </b-alert>
 		<b-card>
 			<b-form-group label="Nome">
 				<b-form-input type="text"
@@ -10,17 +16,19 @@
 				</b-form-input>
 			</b-form-group>
 			<b-form-group label="Email">
-				<b-form-input type="e-mail"
+				<b-form-input type="email"
 					v-model="usuario.email"
 					placeholder="Digite seu email"
 					size="lg">
 				</b-form-input>
 			</b-form-group>
 			<hr>
+			
+
 			<b-button variant="primary"
 				size="lg"
 				@click="save"
-				class="mr-4">
+				class="mr-1">
 				Salvar
 			</b-button>
 			<b-button
@@ -35,7 +43,12 @@
 					<b-list-group-item v-for="(usuario, i) in usuarios" :key="i">
 						<strong>Nome :{{usuario.nome}} </strong>
 						<strong><b>email : </b> {{usuario.email}} </strong>
-						<strong><b>ID : </b> {{usuario.id}} </strong>
+						<strong><b>ID : </b> {{usuario.id}} </strong><br>
+						<b-button variant="warning" size="lg"
+							@click="carregar(usuario.id)">Carregar</b-button>
+						<b-button variant="danger" size="lg"
+							class="ml-1"
+							@click="excluir(usuario.id)">Excluir</b-button>	
 					</b-list-group-item>
 				</b-list-group>
 			</transition>
@@ -50,8 +63,11 @@ export default {
 			usuarios: [],
 			usuario: {
 				nome:'',
-				email:''
-			}
+				email:'',
+				id:''
+			},
+			remove: false,
+			infoGetData: false
 		}
 	},
 	methods: {
@@ -71,8 +87,14 @@ export default {
 		getDate () {
 			this.$http.get('usuario.json').then(res => {
 				this.usuarios = res
+				if(this.usuarios.length === 0) {
+					this.infoGetData = true
+					setTimeout(() => {
+						this.infoGetData = false
+					},2000)
+				}
 				// eslint-disable-next-line no-console
-				console.log(this.usuarios)
+				console.log(this.usuarios.length)
 			}, error => {
 				alert(error)
 			})
@@ -80,6 +102,25 @@ export default {
 		clear () {
 			this.usuario.nome = ''
 			this.usuario.email = ''
+			this.usuario.id = null
+		},
+		carregar (id) {
+			this.usuarios.id = id
+			// eslint-disable-next-line no-console
+			console.log(this.usuarios.id)
+		},
+		excluir (id) {
+			this.$http.delete(`/usuario/${id}.json`)
+				.then(() => {
+					this.remove = true
+					setTimeout(() =>{
+						this.remove = false
+						// eslint-disable-next-line no-console
+						console.log()
+					},2000)
+				}, error => {
+					alert('Excluindo com sucesso', error)
+				})
 		}
 	},
 }
