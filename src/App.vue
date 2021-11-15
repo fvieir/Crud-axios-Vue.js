@@ -119,7 +119,7 @@ export default {
 						console.log()
 					},2000)
 				}, error => {
-					alert('Excluindo com sucesso', error)
+					alert('Error', error)
 				})
 		}
 	},
