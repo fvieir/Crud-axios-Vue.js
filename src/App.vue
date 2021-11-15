@@ -27,7 +27,7 @@
 
 			<b-button variant="primary"
 				size="lg"
-				@click="save"
+				@click="save(usuario.id)"
 				class="mr-1">
 				Salvar
 			</b-button>
@@ -71,18 +71,21 @@ export default {
 		}
 	},
 	methods: {
-		save () {
-			this.$http.post('usuario.json', {
+		save (id) {
+			const metodo = this.usuario.id ? 'patch' : 'post'
+			const finalUrl = this.usuario.id ? `/usuario/${id}.json` : `usuario.json`
+			this.$http[metodo](finalUrl , {
 				nome: this.usuario.nome,
 				email: this.usuario.email
-			}).then(res => {
-				this.clear()
-				this.getDate()
-				// eslint-disable-next-line no-console
-				console.log(res)
-			}, error => {
-				alert(error)
 			})
+			.then(res => {
+					this.clear()
+					this.getDate()
+					// eslint-disable-next-line no-console
+					console.log(res)
+				}, error => {
+					alert(error)
+				})
 		},
 		getDate () {
 			this.$http.get('usuario.json').then(res => {
@@ -105,18 +108,23 @@ export default {
 			this.usuario.id = null
 		},
 		carregar (id) {
-			this.usuarios.id = id
-			// eslint-disable-next-line no-console
-			console.log(this.usuarios.id)
+			this.usuario.id = id
+			this.usuarios.filter(data => {
+				if (data.id === this.usuario.id) {
+					this.usuario.nome = data.nome
+					this.usuario.email = data.email
+					this.usuario.id = data.id
+				}
+			})
 		},
 		excluir (id) {
 			this.$http.delete(`/usuario/${id}.json`)
 				.then(() => {
 					this.remove = true
+					this.getDate()
+					this.clear()
 					setTimeout(() =>{
 						this.remove = false
-						// eslint-disable-next-line no-console
-						console.log()
 					},2000)
 				}, error => {
 					alert('Error', error)
