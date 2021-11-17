@@ -1,12 +1,13 @@
 <template>
 	<div id="app" class="container">
 		<h1>HTTP com Axios</h1>
-			<b-alert show v-if="remove" 
-				variant="success"
-				> Excluido com sucesso </b-alert>
+			<b-alert show
+				dismissible 
+				:variant="mensagem.tipo"
+				v-for="mensagem in mensagens" :key="mensagem.tipo">
+				{{mensagem.texto }}
+			</b-alert>
 
-			<b-alert show v-if="infoGetData"
-				variant="danger"> Não há dados! </b-alert>
 		<b-card>
 			<b-form-group label="Nome">
 				<b-form-input type="text"
@@ -22,8 +23,7 @@
 					size="lg">
 				</b-form-input>
 			</b-form-group>
-			<hr>
-			
+			<hr>		
 
 			<b-button variant="primary"
 				size="lg"
@@ -34,7 +34,7 @@
 			<b-button
 				variant="success"
 				size="lg"
-				@click="getDate">
+				@click="getDate()">
 				Obter Dados
 			</b-button>
 			<hr>
@@ -66,7 +66,7 @@ export default {
 				email:'',
 				id:''
 			},
-			remove: false,
+			mensagens: [],
 			infoGetData: false
 		}
 	},
@@ -80,6 +80,10 @@ export default {
 			})
 			.then(res => {
 					this.clear()
+					this.mensagens.push({
+						texto: 'Cadastrado com sucesso',
+						tipo: 'info'
+					})
 					this.getDate()
 					// eslint-disable-next-line no-console
 					console.log(res)
@@ -91,7 +95,10 @@ export default {
 			this.$http.get('usuario.json').then(res => {
 				this.usuarios = res
 				if(this.usuarios.length === 0) {
-					this.infoGetData = true
+					this.mensagens.push({
+						texto: 'Não há dados',
+						tipo: 'danger'
+					})
 					setTimeout(() => {
 						this.infoGetData = false
 					},2000)
@@ -105,7 +112,8 @@ export default {
 		clear () {
 			this.usuario.nome = ''
 			this.usuario.email = ''
-			this.usuario.id = null
+			this.usuario.id = null,
+			this.mensagem = []
 		},
 		carregar (id) {
 			this.usuario.id = id
@@ -120,14 +128,23 @@ export default {
 		excluir (id) {
 			this.$http.delete(`/usuario/${id}.json`)
 				.then(() => {
-					this.remove = true
+					// this.clear()
+					this.mensagens.push({
+						texto: 'Excluido com sucesso',
+						tipo: 'success'
+					})
 					this.getDate()
-					this.clear()
 					setTimeout(() =>{
 						this.remove = false
 					},2000)
-				}, error => {
-					alert('Error', error)
+				})
+				.catch(err => {
+					this.clear()
+					this.mensagens.push({
+						texto: 'Erro ao excluir',
+						tipo: 'danger',
+						info: err
+					})
 				})
 		}
 	},
